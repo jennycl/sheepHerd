@@ -63,6 +63,7 @@ function draw(){
     
     dog.move();
     dog.display();
+    dog.penCollision();
     
     // draw all of our sheeps
     for (var i = 0; i < sheeps.length; i++) {
