@@ -39,7 +39,7 @@ function setup(){
 
     // create lots of sheep
     for (var i = 0; i < 20; i++) {
-      sheeps.push( new Sheep(random(width), random(height)) );
+      sheeps.push( new Sheep(random(width-canvasWidth/5), random(height)) );
     }
     
     // create the dog
@@ -72,6 +72,14 @@ function draw(){
       heardBark(dog, sheeps[i]); // have all the sheep react to barking/ noise
       collisionDogToSheep(dog, sheeps[i]); // check for collision between dog and all sheep
     }
+    
+    // remove 
+    // for (var i = 0; i < sheeps.length; i++) {
+    //   if(sheeps[i].penCollision){
+    //     sheeps.splice(i,1);
+    //   }
+    // }
+    console.log("size of sheeps" + sheeps.length);
     
     // check collision between all sheep
     for (var i = 0; i < (sheeps.length - 1); i++){
@@ -109,8 +117,9 @@ function Sheep(x, y){
     var yMovement = map(noise(this.noiseOffsetY), 0, 1, -1, 1);
     this.y += yMovement;
 
+    // console.log("HI" + (width-canvasWidth/5));
     // sheep should bounce off the walls of the screen - want wraparound but not working
-    if (this.x > width-25) {
+    if (this.x > (width-canvasWidth/5)+25 && (this.y > (height-canvasHeight/4)|| this.y < (canvasHeight/4))) {
       this.x -= 2;
     }
     if (this.x < 25) {
@@ -128,10 +137,17 @@ function Sheep(x, y){
     this.noiseOffsetY += 0.01;
   }
 
-  // checks if this sheep goes into the pen area
+  // checks if this sheep goes into the pen area - returns true or false
   this.penCollision = function(){
     // if hits the pen, then goes into the pen (disappears)
   }
+  
+  // goal - when a sheep collides with other sheep collect info of where the sheep is coming from and tell
+  // them to move in other direction.
+  // this.afterCollision = function(x,y){
+  //   this.x += x;
+  //   this.y += y;
+  // }
 }
 
 // Dog constructor
@@ -186,7 +202,8 @@ function Dog(x, y){
 function Pen(){
   fill(188,143,143);
   rectMode(CENTER);
-  rect(penX,penY,70,canvasHeight/2);
+  rect(penX,penY,canvasWidth/5,canvasHeight/2);
+  console.log(canvasWidth/5);
 }
 
 // detects collision between dog and the sheep
