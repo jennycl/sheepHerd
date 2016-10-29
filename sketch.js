@@ -304,7 +304,7 @@ function heardBark(dog, sheep){
   }
   else if(micLevel > 0.4 && micLevel <= 0.6){
   // else if(micLevel > 0.1 && micLevel <= 0.2){
-    radius = 125;
+    radius = 150;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
     if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
@@ -313,7 +313,7 @@ function heardBark(dog, sheep){
   }
   else if(micLevel > 0.6 && micLevel <= 0.8){
   // else if(micLevel > 0.2 && micLevel <= 0.3){
-    radius = 150;
+    radius = 175;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
     if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
@@ -352,9 +352,7 @@ function dogGlow(dog, radius, isBarking){
   // var b =
   
   if(isBarking){  
-    if(ellipseRadius != radius){
-      
-      
+    if(ellipseRadius < radius){
       fill(fillOpacity);
       ellipse(dog.x,dog.y,ellipseRadius,ellipseRadius);
       
@@ -369,7 +367,8 @@ function dogGlow(dog, radius, isBarking){
     }
   }
   else{
-          fillOpacity = 0;ellipseRadius = 0;
+    fillOpacity = 0;
+    ellipseRadius = 0;
   }
 }
     
