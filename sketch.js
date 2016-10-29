@@ -293,8 +293,8 @@ function heardBark(dog, sheep){
   var radius = 0;
   var isBarking = false;
   
-  if(micLevel >= 0.2 && micLevel <= 0.4){
-  // if(micLevel > 0.05 && micLevel <= 0.1){
+  // if(micLevel >= 0.2 && micLevel <= 0.4){
+  if(micLevel > 0.05 && micLevel <= 0.1){
     radius = 100;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
@@ -302,8 +302,8 @@ function heardBark(dog, sheep){
       moveAway(dog, sheep);
     }
   }
-  else if(micLevel > 0.4 && micLevel <= 0.6){
-  // else if(micLevel > 0.1 && micLevel <= 0.2){
+  // else if(micLevel > 0.4 && micLevel <= 0.6){
+  else if(micLevel > 0.1 && micLevel <= 0.2){
     radius = 125;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
@@ -311,8 +311,8 @@ function heardBark(dog, sheep){
        moveAway(dog, sheep);
     }
   }
-  else if(micLevel > 0.6 && micLevel <= 0.8){
-  // else if(micLevel > 0.2 && micLevel <= 0.3){
+  // else if(micLevel > 0.6 && micLevel <= 0.8){
+  else if(micLevel > 0.2 && micLevel <= 0.3){
     radius = 150;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
@@ -351,16 +351,16 @@ function dogGlow(dog, radius, isBarking){
   // var g = 
   // var b =
   
-  if(isBarking){  
+  if(isBarking){
+    
     if(ellipseRadius < radius){ // constrain the radius of the glow ball
-      
-      fill(fillOpacity);
-      stroke(fillOpacity);
-      
+      fill(255,255,fillOpacity); // get shades of yellow by changing the blue color values and setting red and green to 255
+      stroke(255,255,fillOpacity);
       ellipse(dog.x,dog.y,ellipseRadius,ellipseRadius);
       
       fillOpacity += 10;
-      ellipseRadius += 3;
+    
+      ellipseRadius += 5;
       console.log("ellipse glow: " +  ellipseRadius);
     }
     
@@ -370,7 +370,8 @@ function dogGlow(dog, radius, isBarking){
     }
   }
   else{
-          fillOpacity = 0;ellipseRadius = 0;
+    fillOpacity = 0;
+    ellipseRadius = 0;
   }
 }
     
