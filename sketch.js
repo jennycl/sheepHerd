@@ -36,6 +36,7 @@ function setup(){
     // get audio through mic
     mic = new p5.AudioIn()
     mic.start();
+    
 
     // create lots of sheep
     for (var i = 0; i < 20; i++) {
@@ -47,6 +48,7 @@ function setup(){
 }
 
 function draw(){
+  console.log("micLevel: " + mic.getLevel());
   background(255);
   
   // startScreen
@@ -287,30 +289,87 @@ function moveAway(dog, sheep){
 function heardBark(dog, sheep){
   // change display based on if it is in radius of dog 
   micLevel = mic.getLevel();
-  if(micLevel < 0.2){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 100){
+  
+  var radius = 0;
+  var isBarking = false;
+  
+  if(micLevel >= 0.2 && micLevel <= 0.4){
+  // if(micLevel >= 0 && micLevel <= 0.1){
+    radius = 100;
+    isBarking = true;
+    dogGlow(dog,radius,isBarking);
+    if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
       moveAway(dog, sheep);
     }
   }
-  else if(micLevel < 0.4){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 125){
+  else if(micLevel > 0.4 && micLevel <= 0.6){
+  // else if(micLevel > 0.1 && micLevel <= 0.2){
+    radius = 125;
+    isBarking = true;
+    dogGlow(dog,radius,isBarking);
+    if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
        moveAway(dog, sheep);
     }
   }
-  else if(micLevel < 0.6){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 150){
+  else if(micLevel > 0.6 && micLevel <= 0.8){
+  // else if(micLevel > 0.2 && micLevel <= 0.3){
+    radius = 150;
+    isBarking = true;
+    dogGlow(dog,radius,isBarking);
+    if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
       moveAway(dog, sheep);
     }
   }
-  else if(micLevel < 0.8){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 175){
-       moveAway(dog, sheep);
+  // else if(micLevel > 0.8){
+  //   radius = 175;
+  //   isBarking = true;
+  //   dogGlow(dog,radius,isBarking);
+  //   if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
+  //     moveAway(dog, sheep);
+  //   }
+  // }
+  else{
+    isBarking = false;
+    radius = 0;
+    dogGlow(dog,radius,isBarking);
+  }
+  // else{
+  //   radius = 200;
+  //   isBarking = true;
+  //   dogGlow(dog,radius,isBarking);
+  //   if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
+  //     moveAway(dog, sheep);
+  //   }
+  // }
+}
+
+var fillOpacity = 0;
+var ellipseRadius = 0;
+  
+function dogGlow(dog, radius, isBarking){
+  // var r =
+  // var g = 
+  // var b =
+  
+  if(isBarking){  
+    if(ellipseRadius != radius){
+      
+      
+      fill(fillOpacity);
+      ellipse(dog.x,dog.y,ellipseRadius,ellipseRadius);
+      
+      fillOpacity += 10;
+      ellipseRadius += 5;
+      // ellipseRadius = constrain(radius);
+      console.log("ellipse glow: " +  ellipseRadius);
+    }
+    else{
+        fillOpacity = 0;
+        ellipseRadius = 0;
     }
   }
   else{
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 200){
-      moveAway(dog, sheep);
-    }
+          fillOpacity = 0;ellipseRadius = 0;
   }
 }
     
