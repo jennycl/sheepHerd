@@ -19,7 +19,7 @@ var startButtonY = canvasHeight * 0.87;
 // start and end conditions
 var start = false;
 var end = false;
-var showEnd = false;
+var showEnd = false; // when to show end screen
 
 var dog;
 var mic;
@@ -29,12 +29,15 @@ var penHeight = canvasHeight/2;
 
 var startscreen;
 var endscreen; 
+var backgroundImage;
 
+var sheepLeft;
 
 function preload(){
     // load images
     startscreen = loadImage("images/start-screen.png");
     endscreen = loadImage("images/end-screen.png");
+    backgroundImage = loadImage("images/background-with-pen-fixed.png")
 }
 
 function setup(){
@@ -55,13 +58,15 @@ function setup(){
       sheeps.push( new Sheep(random(width-canvasWidth/5), random(height)) );
     }
     
+    sheepLeft = sheeps.length;
+    // console.log("Sheeps left: " + sheepLeft);
+    
     // create the dog
     dog = new Dog(0,0);
 }
 
 function draw(){
   console.log("micLevel: " + mic.getLevel());
-  background(255);
   
   // startScreen
   // if(gameState == 0){
@@ -72,6 +77,7 @@ function draw(){
   // playScreen
   // if(gameState == 1){
   else if(start == true && end == false){
+    image(backgroundImage,0,0,canvasWidth,canvasHeight);
     textAlign(LEFT,TOP);
     text("Time Left:" + ceil(timeLeft/60),20,20);
     
@@ -87,11 +93,14 @@ function draw(){
     }
     
     // remove 
-    // for (var i = 0; i < sheeps.length; i++) {
-    //   if(sheeps[i].penCollision){
-    //     sheeps.splice(i,1);
-    //   }
-    // }
+    for (var i = 0; i < sheeps.length; i++) {
+      if(sheeps[i].penCollision()){
+        sheeps.splice(i,1);
+      }
+    }
+    
+    sheepLeft = sheeps.length;
+    console.log("sheeps left in array: " + sheepLeft);
     
     // check collision between all sheep
     for (var i = 0; i < (sheeps.length - 1); i++){
@@ -394,6 +403,22 @@ function gameOver(){
     imageMode(CORNER);
     // reset background image according to results of game
     image(endscreen,0,0,canvasWidth,canvasHeight);
+    if(sheepLeft == 0){
+      stroke(255,209,5);
+      fill(255,224,20);
+      strokeJoin(ROUND);
+      strokeWeight(3);
+      textSize(50);
+      text("YOU WIN!",canvasWidth*0.05,canvasHeight*0.04);
+    }
+    else{
+      stroke(255,209,5);
+      fill(255,224,20);
+      strokeJoin(ROUND);
+      strokeWeight(3);
+      textSize(50);
+      text("YOU LOSE.",canvasWidth*0.05,canvasHeight*0.04);
+    }
   }
 }   
     
