@@ -9,8 +9,8 @@ var canvasWidth = 500;
 var canvasHeight = 500;
 var penX = canvasWidth;
 var penY = canvasHeight/2;
-var startButtonX = canvasWidth * 0.75;
-var startButtonY = canvasHeight *0.75;
+var startButtonX = canvasWidth * 0.87;
+var startButtonY = canvasHeight * 0.87;
 
 var gameState = 0;
 
@@ -20,9 +20,12 @@ var mic;
 var penWidth = 70; 
 var penHeight = canvasHeight/2; 
 
+var startscreen;
+
 
 function preload(){
     // load images
+    startscreen = loadImage("images/start-screen.png");
 }
 
 function setup(){
@@ -63,10 +66,6 @@ function draw(){
     // draws pen 
     Pen();
     
-    dog.move();
-    dog.display();
-    dog.penCollision();
-    
     // draw all of our sheeps
     for (var i = 0; i < sheeps.length; i++) {
       sheeps[i].move();
@@ -81,7 +80,6 @@ function draw(){
     //     sheeps.splice(i,1);
     //   }
     // }
-    console.log("size of sheeps" + sheeps.length);
     
     // check collision between all sheep
     for (var i = 0; i < (sheeps.length - 1); i++){
@@ -90,7 +88,10 @@ function draw(){
       }
     }
     
-    
+    // call here so image of dog will be on top of the glow balls
+    dog.move();
+    dog.display();
+    dog.penCollision();
   }
 }
 
@@ -111,15 +112,30 @@ function Sheep(x, y){
 
   // move this sheep
   this.move = function() {
-    
-    
     // movement of sheep in x and y direction
     var xMovement = map(noise(this.noiseOffsetX), 0, 1, -1, 1);
     this.x += xMovement;
     var yMovement = map(noise(this.noiseOffsetY), 0, 1, -1, 1);
     this.y += yMovement;
+    
+    // // decide which direction to move in
+    // if(xMovement > 0 ){ // if moving to the left, use left facing image  
+    //   fill(255,0,0); // red
+    //   rect(this.x,this.y,50,50);
+    // }
+    // else if(xMovement < 0){ // if moving to the right, use right facing image
+    //   fill(0,255,0); // green
+    //   rect(this.x,this.y,50,50);
+    // }
+    // else if(yMovement > 0){ // if moving down, use down facing image
+    //   fill(0,0,255); // blue
+    //   rect(this.x,this.y,50,50);
+    // }
+    // else if(yMovement < 0){ // if moving up, use up facing image
+    //   fill(255); // white
+    //   rect(this.x,this.y,50,50);
+    // }
 
-    // console.log("HI" + (width-canvasWidth/5));
     // sheep should bounce off the walls of the screen - want wraparound but not working
     if (this.x > (width-canvasWidth/5)+25 && (this.y > (height-canvasHeight/4)|| this.y < (canvasHeight/4))) {
       this.x -= 2;
@@ -205,12 +221,11 @@ function Pen(){
   fill(188,143,143);
   rectMode(CENTER);
   rect(penX,penY,canvasWidth/5,canvasHeight/2);
-  console.log(canvasWidth/5);
 }
 
 // detects collision between dog and the sheep
 function collisionDogToSheep(dog, sheep){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 50){
+    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 40){
        moveAway(dog, sheep);
     }
 }
@@ -237,7 +252,7 @@ function collisionSheepToSheep(sheepA, sheepB){
   }
 }
 
-// sheep move away from dog - check if changes work
+// sheep move away from dog - prevent from moving beyond border
 function moveAway(dog, sheep){
   if(dog.x < sheep.x){
     sheep.x += 1;
@@ -290,11 +305,12 @@ function heardBark(dog, sheep){
   // change display based on if it is in radius of dog 
   micLevel = mic.getLevel();
   
+  // radius of bark power effectiveness
   var radius = 0;
   var isBarking = false;
   
-  // if(micLevel >= 0.2 && micLevel <= 0.4){
-  if(micLevel > 0.05 && micLevel <= 0.1){
+  if(micLevel >= 0.2 && micLevel <= 0.4){
+  // if(micLevel >= 0 && micLevel <= 0.1){
     radius = 100;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
@@ -302,18 +318,18 @@ function heardBark(dog, sheep){
       moveAway(dog, sheep);
     }
   }
-  // else if(micLevel > 0.4 && micLevel <= 0.6){
-  else if(micLevel > 0.1 && micLevel <= 0.2){
-    radius = 125;
+  else if(micLevel > 0.4 && micLevel <= 0.6){
+  // else if(micLevel > 0.1 && micLevel <= 0.2){
+    radius = 150;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
     if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
        moveAway(dog, sheep);
     }
   }
-  // else if(micLevel > 0.6 && micLevel <= 0.8){
-  else if(micLevel > 0.2 && micLevel <= 0.3){
-    radius = 150;
+  else if(micLevel > 0.6 && micLevel <= 0.8){
+  // else if(micLevel > 0.2 && micLevel <= 0.3){
+    radius = 175;
     isBarking = true;
     dogGlow(dog,radius,isBarking);
     if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
@@ -333,37 +349,23 @@ function heardBark(dog, sheep){
     radius = 0;
     dogGlow(dog,radius,isBarking);
   }
-  // else{
-  //   radius = 200;
-  //   isBarking = true;
-  //   dogGlow(dog,radius,isBarking);
-  //   if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
-  //     moveAway(dog, sheep);
-  //   }
-  // }
 }
 
+// color and radius of glowing background when dog barks
 var fillOpacity = 0;
 var ellipseRadius = 0;
-  
+
+//visual of dog barking - visual signal that mic has picked up barking  
 function dogGlow(dog, radius, isBarking){
-  // var r =
-  // var g = 
-  // var b =
-  
-  if(isBarking){
-    
-    if(ellipseRadius < radius){ // constrain the radius of the glow ball
-      fill(255,255,fillOpacity); // get shades of yellow by changing the blue color values and setting red and green to 255
+  if(isBarking){  
+    if(ellipseRadius < radius){ // constrain the radius of the glow ball growth
+      fill(255,255,fillOpacity); // various shades of yellow by changing b value and keeping r and g value to 255
       stroke(255,255,fillOpacity);
       ellipse(dog.x,dog.y,ellipseRadius,ellipseRadius);
       
       fillOpacity += 10;
-    
       ellipseRadius += 5;
-      console.log("ellipse glow: " +  ellipseRadius);
     }
-    
     else{
         fillOpacity = 0;
         ellipseRadius = 0;
@@ -375,47 +377,47 @@ function dogGlow(dog, radius, isBarking){
   }
 }
     
-
 //This function displays start screen
 function startScreen(){
-  background(0);
-  fill(255);
+  image(startscreen,0,0,canvasWidth,canvasHeight);
   
-  //textFont(scoobyFont);
-  textSize(20);
+  // Start button
   rectMode(CENTER);
-  fill(255,255,153);
-  stroke(255,204,102);
+  fill(224,255,255); // blue-white
+  stroke(116,209,23); // green
   strokeWeight(5);
-  textSize(23);
+  rect(startButtonX, startButtonY, 90, 90);
     
-  //start button
-  rect(startButtonX, startButtonY, 150, 50);
-  textSize(40);
-  fill(0);
+  // start text
+  textSize(26);
+  fill(116,209,23); // green
+  stroke(224,255,255); // blue-white
+  strokeWeight(1);
+  textStyle(BOLD);
+  textSize(26);
   textAlign(CENTER,CENTER);
   text("START",startButtonX,startButtonY);
 }
 
 //This function checks if start button is hovered over or pressed
 function drawButton(testX, testY){
-  if(testX > startButtonX-75 && testX < startButtonX+75 && testY > startButtonY - 25 && testY < startButtonY + 25){
-    fill(217,255,179);
-    stroke(51, 153, 255);
+  if(testX > startButtonX-45 && testX < startButtonX+45 && testY > startButtonY-45 && testY < startButtonY+45){
+    // drawing button
+    fill(116,209,23); //green
+    stroke(224,255,255); // blue-white
     strokeWeight(5);
-    rect(startButtonX, startButtonY, 150, 50);
-    textSize(40);
-    fill(0);
+    rect(startButtonX, startButtonY, 90, 90);
+    
+    // text
+    fill(224,255,255);
+    strokeWeight(1);
+    textSize(26);
+    textStyle(BOLD);
     textAlign(CENTER,CENTER);
     text("START",startButtonX,startButtonY);
     
     //if start button is pressed, game starts
     if(mouseIsPressed == true){
-      fill(255,217,179);
-      rect(startButtonX, startButtonY, 150, 50);
-      stroke(0);
-      strokeWeight(1);
-      fill(0);
       gameState = 1;
       //play game music??
     }
