@@ -2,7 +2,9 @@
 var sheeps = [ ]; // array of sheep objects
 
 var moveAwayTime = 5; // sheep moves away from dog when collision detected for 5 frames
-var gameTime = 60; // max time to win game - start countdown
+// var gameTime = 7200; // max time to win game - start countdown is 60 seconds
+var timeLeft;
+var timePassed = 0;
 
 var theCanvas;
 var canvasWidth = 500;
@@ -12,7 +14,12 @@ var penY = canvasHeight/2;
 var startButtonX = canvasWidth * 0.87;
 var startButtonY = canvasHeight * 0.87;
 
-var gameState = 0;
+// var gameState = 0;
+
+// start and end conditions
+var start = false;
+var end = false;
+var showEnd = false;
 
 var dog;
 var mic;
@@ -21,11 +28,13 @@ var penWidth = 70;
 var penHeight = canvasHeight/2; 
 
 var startscreen;
+var endscreen; 
 
 
 function preload(){
     // load images
     startscreen = loadImage("images/start-screen.png");
+    endscreen = loadImage("images/end-screen.png");
 }
 
 function setup(){
@@ -55,13 +64,16 @@ function draw(){
   background(255);
   
   // startScreen
-  if(gameState == 0){
+  // if(gameState == 0){
+  if(start == false && end == false){
     startScreen();
-    drawButton(mouseX,mouseY);
   }
   
   // playScreen
-  if(gameState == 1){
+  // if(gameState == 1){
+  else if(start == true && end == false){
+    textAlign(LEFT,TOP);
+    text("Time Left:" + ceil(timeLeft/60),20,20);
     
     // draws pen 
     Pen();
@@ -92,6 +104,14 @@ function draw(){
     dog.move();
     dog.display();
     dog.penCollision();
+    
+    timeLeft -= 1;
+    
+    gameOver();
+  }
+  
+  else if(start == false && end == true){
+    gameOver();
   }
 }
 
@@ -117,24 +137,6 @@ function Sheep(x, y){
     this.x += xMovement;
     var yMovement = map(noise(this.noiseOffsetY), 0, 1, -1, 1);
     this.y += yMovement;
-    
-    // // decide which direction to move in
-    // if(xMovement > 0 ){ // if moving to the left, use left facing image  
-    //   fill(255,0,0); // red
-    //   rect(this.x,this.y,50,50);
-    // }
-    // else if(xMovement < 0){ // if moving to the right, use right facing image
-    //   fill(0,255,0); // green
-    //   rect(this.x,this.y,50,50);
-    // }
-    // else if(yMovement > 0){ // if moving down, use down facing image
-    //   fill(0,0,255); // blue
-    //   rect(this.x,this.y,50,50);
-    // }
-    // else if(yMovement < 0){ // if moving up, use up facing image
-    //   fill(255); // white
-    //   rect(this.x,this.y,50,50);
-    // }
 
     // sheep should bounce off the walls of the screen - want wraparound but not working
     if (this.x > (width-canvasWidth/5)+25 && (this.y > (height-canvasHeight/4)|| this.y < (canvasHeight/4))) {
@@ -377,10 +379,35 @@ function dogGlow(dog, radius, isBarking){
   }
 }
     
+function gameOver(){
+  // increment one second per frame (assume 60 frames per second)
+  timePassed += 1;
+  console.log(timePassed);
+  // if(gameTime == 7200){
+  if(timePassed == 300){
+    // set start to false and end to true so draw no longer runs the game
+    start = false;
+    end = true;
+    showEnd = true; // true when end image to be shown
+  }
+  if(showEnd){
+    imageMode(CORNER);
+    // reset background image according to results of game
+    image(endscreen,0,0,canvasWidth,canvasHeight);
+  }
+}   
+    
 //This function displays start screen
 function startScreen(){
+    // start at 120 seconds
+  // gameTime = 7200;
+  timeLeft = 300; // used for testing
   image(startscreen,0,0,canvasWidth,canvasHeight);
-  
+  drawButton(mouseX,mouseY);
+}
+
+//This function checks if start button is hovered over or pressed
+function drawButton(testX, testY){
   // Start button
   rectMode(CENTER);
   fill(224,255,255); // blue-white
@@ -397,10 +424,7 @@ function startScreen(){
   textSize(26);
   textAlign(CENTER,CENTER);
   text("START",startButtonX,startButtonY);
-}
-
-//This function checks if start button is hovered over or pressed
-function drawButton(testX, testY){
+  
   if(testX > startButtonX-45 && testX < startButtonX+45 && testY > startButtonY-45 && testY < startButtonY+45){
     // drawing button
     fill(116,209,23); //green
@@ -418,7 +442,7 @@ function drawButton(testX, testY){
     
     //if start button is pressed, game starts
     if(mouseIsPressed == true){
-      gameState = 1;
+      start = true;
       //play game music??
     }
   }
