@@ -5,8 +5,8 @@ var moveAwayTime = 5; // sheep moves away from dog when collision detected for 5
 var gameTime = 60; // max time to win game - start countdown
 
 var theCanvas;
-var canvasWidth = 500;
-var canvasHeight = 500;
+var canvasWidth = 1000;
+var canvasHeight = 700;
 var penX = canvasWidth;
 var penY = canvasHeight/2;
 var startButtonX = canvasWidth * 0.75;
@@ -24,11 +24,27 @@ var SheepSprites;
 var DogSprites;
 var canvas;
 
+var count = 1;
+var frames = 0;
+
+var currentDog = {
+  xpos:0,
+  ypos:0,
+  w:0,
+  h:0
+};
+
+
+
+//var currentDog = image (DogSprites,DogLeft1.xpos,DogLeft1.ypos,DogLeft1.w,DogLeft1.h,this.x,this.y,DogLeft1.w,DogLeft1.h);
+
+
 function preload(){
   SheepSprites = loadImage("images/sheepSprite.png");
   DogSprites = loadImage("images/dogSprite.png")
-  
+  grass = loadImage("images/grass3.png")
 }
+
 function setup(){
     theCanvas = createCanvas(canvasWidth,canvasHeight);
     theCanvas.style('border','5px solid black');
@@ -40,10 +56,11 @@ function setup(){
     // get audio through mic
     mic = new p5.AudioIn()
     mic.start();
+    
 
     // create lots of sheep
     for (var i = 0; i < 20; i++) {
-      sheeps.push( new Sheep(random(width-canvasWidth/5), random(height)) );
+      sheeps.push( new Sheep(random(width-canvasWidth/5), random(height),randomSheepPic()) );
     }
     
     // create the dog
@@ -51,10 +68,11 @@ function setup(){
 }
 
 function draw(){
-  background(255);
-
-    // image(img,[sx=0],[sy=0],[sWidth=img.width],[sHeight=img.height],[dx=0],[dy=0],[dWidth],[dHeight])
-  image(DogSprites,DogUp1.xpos,DogUp1.ypos,DogUp1.w,DogUp1.h,250,250,DogUp1.w,DogUp1.h);
+  console.log("micLevel: " + mic.getLevel());
+  imageMode(CORNER);
+  image(grass,0,0,canvasWidth, canvasHeight);
+  imageMode(CENTER);
+  
   
   // startScreen
   if(gameState == 0){
@@ -62,15 +80,15 @@ function draw(){
     drawButton(mouseX,mouseY);
   }
   
+  // if(gameState == 1){
+  //   instructionScreen();
+  // }
   // playScreen
   if(gameState == 1){
     
+    
     // draws pen 
     Pen();
-    
-    dog.move();
-    dog.display();
-    dog.penCollision();
     
     // draw all of our sheeps
     for (var i = 0; i < sheeps.length; i++) {
@@ -96,13 +114,39 @@ function draw(){
     }
     
     
+    dog.display();
+    dog.move();
+    dog.penCollision();
+    
+    if (count <4){
+      count++
+    }
+    else{
+      count=1
+    }
+    frames++;
+    if (frames > 60){
+      frames = 0;
+    }
   }
 }
 
 // Sheep constructor
-function Sheep(x, y){
+function Sheep(x, y, name){
+    var currentSheep = {
+    xpos:0,
+    ypos:0,
+    w:0,
+    h:0
+  }
+  
   this.x = x;
   this.y = y;
+  this.name = name;
+  //this.state = 0;
+  this.framesInState = 0;
+  
+  currentSheep = name;
 
   // compute a perlin noise offiset
   this.noiseOffsetX = random(0,1000);
@@ -110,8 +154,120 @@ function Sheep(x, y){
 
   // display the sheep
   this.display = function(){
-    ellipseMode(CENTER);
-    ellipse(this.x,this.y,50,50);
+    
+     imageMode(CENTER);
+      // currentDog = image (DogSprites,DogLeft1.xpos,DogLeft1.ypos,DogLeft1.w,DogLeft1.h,this.x,this.y,DogLeft1.w,DogLeft1.h);
+       //currentDog = DogLeft1;
+      // if(frames %10 ==0){
+      //   if(count == 1){
+      //     image (SheepSprites,SheepDown1.xpos,SheepDown1.ypos,SheepDown1.w,SheepDown1.h,this.x,this.y,SheepDown1.w,SheepDown1.h);
+      //   }
+      //   if(count == 2){
+      //     image (SheepSprites,SheepDown2.xpos,SheepDown2.ypos,SheepDown2.w,SheepDown1.h,this.x,this.y,SheepDown2.w,SheepDown2.h);
+      //   }
+      //   if(count == 3){
+      //     image (SheepSprites,SheepDown3.xpos,SheepDown3.ypos,SheepDown3.w,SheepDown3.h,this.x,this.y,SheepDown3.w,SheepDown3.h);
+      //   }
+      //   if(count == 4){
+      //     image (SheepSprites,SheepDown4.xpos,SheepDown4.ypos,SheepDown4.w,SheepDown4.h,this.x,this.y,SheepDown4.w,SheepDown4.h);
+      //   }
+      // }
+      image (SheepSprites,currentSheep.xpos,currentSheep.ypos,currentSheep.w,currentSheep.h,this.x,this.y,currentSheep.w,currentSheep.h);
+      if(this.name == SheepDown2){
+        if(this.framesInState % 10==0){
+          currentSheep = SheepDown2;
+        }
+        if(this.framesInState % 30==0){
+          currentSheep = SheepDown3;
+        }
+        if(this.framesInState % 50 ==0){
+          currentSheep = SheepDown4;
+        }
+        if(this.framesInState % 70 ==0){
+          currentSheep = SheepDown1;
+        }
+        if(this.framesInState % 90 ==0){
+          currentSheep = SheepDown2;
+        }
+      }
+    if(this.name == SheepDown1){
+        if(this.framesInState % 10==0){
+          currentSheep = SheepDown1;
+        }
+        if(this.framesInState % 30==0){
+          currentSheep = SheepDown2;
+        }
+        if(this.framesInState % 50 ==0){
+          currentSheep = SheepDown3;
+        }
+        if(this.framesInState % 70 ==0){
+          currentSheep = SheepDown4;
+        }
+        if(this.framesInState % 90 ==0){
+          currentSheep = SheepDown1;
+        }
+      }
+    if(this.name == SheepDown3){
+        if(this.framesInState % 10==0){
+          currentSheep = SheepDown3;
+        }
+        if(this.framesInState % 30==0){
+          currentSheep = SheepDown4;
+        }
+        if(this.framesInState % 50 ==0){
+          currentSheep = SheepDown1;
+        }
+        if(this.framesInState % 70 ==0){
+          currentSheep = SheepDown2;
+        }
+        if(this.framesInState % 90 ==0){
+          currentSheep = SheepDown3;
+        }
+      }
+    
+    if(this.name == SheepDown4){
+        if(this.framesInState % 10==0){
+          currentSheep = SheepDown4;
+        }
+        if(this.framesInState % 30==0){
+          currentSheep = SheepDown1;
+        }
+        if(this.framesInState % 50 ==0){
+          currentSheep = SheepDown2;
+        }
+        if(this.framesInState % 70 ==0){
+          currentSheep = SheepDown3;
+        }
+        if(this.framesInState % 90 ==0){
+          currentSheep = SheepDown4;
+        }
+      }
+      
+      this.framesInState +=1
+      if(this.framesInState > 90){
+        this.framesInState = 0;
+      }
+    
+    // image (SheepSprites,this.name.xpos,this.name.ypos,this.name.w,this.name.h,this.x,this.y,this.name.w,this.name.h);
+    
+    // ellipseMode(CENTER);
+    // ellipse(this.x,this.y,50,50);
+    // if(xPos < xFox){
+    //   xFox -= foxSpeed;
+    //   fox_current = fLeft;
+    // }
+    // if(xPos > xFox){
+    //   xFox += foxSpeed;
+    //   fox_current = fRight;
+    // }
+    // if(yPos < yFox){
+    //   yFox -= foxSpeed;
+    //   fox_current = fUp;
+    // }
+    // if(yPos > yFox){
+    //   yFox += foxSpeed;
+    //   fox_current = fDown;
+    // }
   }
 
   // move this sheep
@@ -119,7 +275,7 @@ function Sheep(x, y){
     
     
     // movement of sheep in x and y direction
-    var xMovement = map(noise(this.noiseOffsetX), 0, 1, -1, 1);
+    var xMovement = map(noise(this.noiseOffsetX), 0, 1, -1.5, 1.5);
     this.x += xMovement;
     var yMovement = map(noise(this.noiseOffsetY), 0, 1, -1, 1);
     this.y += yMovement;
@@ -157,6 +313,20 @@ function Sheep(x, y){
   // }
 }
 
+function randomSheepPic(){
+  switch(Math.floor(Math.random() * (3 + 1))){
+    case 0:
+      return SheepDown1;
+    case 1:
+      return SheepDown2;
+    case 2:
+      return SheepDown3;
+    case 3:
+      return SheepDown4;
+  }
+  
+}
+
 // Dog constructor
 function Dog(x, y){
   this.x = x;
@@ -164,7 +334,25 @@ function Dog(x, y){
   
   // display the dog
   this.display = function(){
-    ellipse(this.x, this.y, 30);
+    //ellipse(this.x, this.y, 30);
+    if(this.direction == 1 && !(keyIsDown(65) || keyIsDown(LEFT_ARROW))){
+      currentDog = DogLeft2;
+
+    }
+    if(this.direction == 2 && !(keyIsDown(68) || keyIsDown(RIGHT_ARROW))){
+      currentDog = DogRight2;
+     
+    }
+    
+    if(this.direction == 3 && !(keyIsDown(87) || keyIsDown(UP_ARROW))){
+      currentDog = DogUp2;
+     
+    }
+    
+    if(this.direction == 4 && !(keyIsDown(83) || keyIsDown(DOWN_ARROW))){
+      currentDog = DogDown1;
+    }
+
   }
 
   // handles dog's collision with the pen - not working - later adapt to sheep
@@ -180,28 +368,106 @@ function Dog(x, y){
   	  this.y = (canvasHeight/4) * 3;
   	}
   }
+  
+  this.direction = 1;
 
   // keyboard directed movement of dog 
   this.move = function(){
     if (keyIsDown(65) || keyIsDown(LEFT_ARROW)){
+      imageMode(CENTER);
+      // currentDog = image (DogSprites,DogLeft1.xpos,DogLeft1.ypos,DogLeft1.w,DogLeft1.h,this.x,this.y,DogLeft1.w,DogLeft1.h);
+       //currentDog = DogLeft1;
+      if(frames %5 ==0){
+        if(count == 1){
+          currentDog = DogLeft1;
+        }
+        if(count == 2){
+          currentDog = DogLeft2;
+        }
+        if(count == 3){
+          currentDog = DogLeft3;
+        }
+        if(count == 4){
+          currentDog = DogLeft4;
+        }
+      }
       this.x -= 5; 
+      this.direction = 1;
     }
     if (keyIsDown(68) || keyIsDown(RIGHT_ARROW)) {
+      imageMode(CENTER);
+      // currentDog = image (DogSprites,DogRight1.xpos,DogRight1.ypos,DogRight1.w,DogRight1.h,this.x,this.y,DogRight1.w,DogRight1.h);
+      //currentDog = DogRight1;
+      if(frames %5 ==0){
+        if(count == 1){
+          currentDog = DogRight1;
+        }
+        if(count == 2){
+          currentDog = DogRight2;
+        }
+        if(count == 3){
+          currentDog = DogRight3;
+        }
+        if(count == 4){
+          currentDog = DogRight4;
+        }
+      }
       this.x += 5;
-    }
-    if (keyIsDown(87) || keyIsDown(UP_ARROW)) {
-      this.y -= 5;
-    }
-    if (keyIsDown(83) || keyIsDown(DOWN_ARROW)) {
-      this.y += 5;
+      this.direction = 2;
     }
     
+    if (keyIsDown(87) || keyIsDown(UP_ARROW)) {
+      imageMode(CENTER);
+      // currentDog = image (DogSprites,DogUp1.xpos,DogUp1.ypos,DogUp1.w,DogUp1.h,this.x,this.y,DogUp1.w,DogUp1.h);
+      //currentDog = DogUp1;
+      if(frames %5 ==0){
+        if(count == 1){
+          currentDog = DogUp1;
+        }
+        if(count == 2){
+          currentDog = DogUp2;
+        }
+        if(count == 3){
+          currentDog = DogUp3;
+        }
+        if(count == 4){
+          currentDog = DogUp4;
+        }
+      }
+      this.y -= 5;
+      this.direction = 3;
+    }
+    
+    if (keyIsDown(83) || keyIsDown(DOWN_ARROW)) {
+      imageMode(CENTER);
+      // currentDog = DogDown2;
+      if(frames %5 ==0){
+        if(count == 1){
+          currentDog = DogDown1;
+        }
+        if(count == 2){
+          currentDog = DogDown2;
+        }
+        if(count == 3){
+          currentDog = DogDown3;
+        }
+        if(count == 4){
+          currentDog = DogDown4;
+        }
+      }
+      this.y += 5;
+      this.direction = 4;
+    }
+ 
     // prevent dog from moving beyond boundries
     if (this.x > width){  this.x = width; }
     if (this.y < 0){ this.y = 0; }
     if (this.x <  0){ this.x = 0; }
     if (this.y > height){ this.y = height; }
+    
+    image (DogSprites,currentDog.xpos,currentDog.ypos,currentDog.w,currentDog.h,this.x,this.y,currentDog.w,currentDog.h);
   }
+  
   
 }
 
@@ -222,7 +488,7 @@ function collisionDogToSheep(dog, sheep){
 
 // detects when a collision between sheep occurs
 function collisionSheepToSheep(sheepA, sheepB){
-  if(dist(sheepA.x, sheepA.y, sheepB.x, sheepB.y) < 50){
+  if(dist(sheepA.x, sheepA.y, sheepB.x, sheepB.y) < 20){
     if(sheepA.x < sheepB.x){
       sheepA.x -= 1;
       sheepB.x += 1;
@@ -294,30 +560,89 @@ function moveAway(dog, sheep){
 function heardBark(dog, sheep){
   // change display based on if it is in radius of dog 
   micLevel = mic.getLevel();
-  if(micLevel < 0.2){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 100){
+  
+  var radius = 0;
+  var isBarking = false;
+  
+  // if(micLevel >= 0.2 && micLevel <= 0.4){
+  if(micLevel > 0.05 && micLevel <= 0.1){
+    radius = 100;
+    isBarking = true;
+    dogGlow(dog,radius,isBarking);
+    if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
       moveAway(dog, sheep);
     }
   }
-  else if(micLevel < 0.4){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 125){
+  // else if(micLevel > 0.4 && micLevel <= 0.6){
+  else if(micLevel > 0.1 && micLevel <= 0.2){
+    radius = 125;
+    isBarking = true;
+    dogGlow(dog,radius,isBarking);
+    if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
        moveAway(dog, sheep);
     }
   }
-  else if(micLevel < 0.6){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 150){
+  // else if(micLevel > 0.6 && micLevel <= 0.8){
+  else if(micLevel > 0.2 && micLevel <= 0.3){
+    radius = 150;
+    isBarking = true;
+    dogGlow(dog,radius,isBarking);
+    if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
       moveAway(dog, sheep);
     }
   }
-  else if(micLevel < 0.8){
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 175){
-       moveAway(dog, sheep);
+  // else if(micLevel > 0.8){
+  //   radius = 175;
+  //   isBarking = true;
+  //   dogGlow(dog,radius,isBarking);
+  //   if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
+  //     moveAway(dog, sheep);
+  //   }
+  // }
+  else{
+    isBarking = false;
+    radius = 0;
+    dogGlow(dog,radius,isBarking);
+  }
+  // else{
+  //   radius = 200;
+  //   isBarking = true;
+  //   dogGlow(dog,radius,isBarking);
+  //   if(dist(dog.x, dog.y, sheep.x, sheep.y) < radius){
+  //     moveAway(dog, sheep);
+  //   }
+  // }
+}
+
+var fillOpacity = 0;
+var ellipseRadius = 0;
+  
+function dogGlow(dog, radius, isBarking){
+  // var r =
+  // var g = 
+  // var b =
+  
+  if(isBarking){
+    
+    if(ellipseRadius < radius){ // constrain the radius of the glow ball
+      fill(255,255,fillOpacity); // get shades of yellow by changing the blue color values and setting red and green to 255
+      stroke(255,255,fillOpacity);
+      ellipse(dog.x,dog.y,ellipseRadius,ellipseRadius);
+      
+      fillOpacity += 10;
+    
+      ellipseRadius += 5;
+      console.log("ellipse glow: " +  ellipseRadius);
+    }
+    
+    else{
+        fillOpacity = 0;
+        ellipseRadius = 0;
     }
   }
   else{
-    if(dist(dog.x, dog.y, sheep.x, sheep.y) < 200){
-      moveAway(dog, sheep);
-    }
+    fillOpacity = 0;
+    ellipseRadius = 0;
   }
 }
     
@@ -355,7 +680,7 @@ function drawButton(testX, testY){
     textAlign(CENTER,CENTER);
     text("START",startButtonX,startButtonY);
     
-    //if start button is pressed, game starts
+    //if start button is pressed, go to instruction screen
     if(mouseIsPressed == true){
       fill(255,217,179);
       rect(startButtonX, startButtonY, 150, 50);
@@ -365,9 +690,12 @@ function drawButton(testX, testY){
       gameState = 1;
       //play game music??
     }
-  }
+}
 }
 
+// function instructionScreen(){
+//   background(0);
+// }
 
 var SheepUp1 = {
   xpos: 50,
@@ -489,14 +817,6 @@ var DogDown1={
 }
 
 var DogDown2={
-  xpos:56,
-  ypos:22,
-  w:32,
-  h:40
-  
-}
-
-var DogDown3={
   xpos:104,
   ypos:22,
   w:32,
@@ -504,11 +824,18 @@ var DogDown3={
   
 }
 
+var DogDown3={
+  xpos:56,
+  ypos:22,
+  w:32,
+  h:40
+}
+
 var DogDown4={
-  xpos: 152,
-  ypos: 22,
-  w: 32,
-  y: 40
+  xpos:8,
+  ypos:22,
+  w:32,
+  h:40
 }
 
 var DogLeft1={
